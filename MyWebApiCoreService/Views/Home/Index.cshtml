@@ -1,0 +1,210 @@
+﻿@{
+    Layout = null;  
+}
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+
+<!DOCTYPE Html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>WebApiCore</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link href="~/css/styles.css" rel="stylesheet" asp-append-version="true" />
+    <style>
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin:10px;
+            margin-top: 20px;
+            row-gap: 30px;
+            font-size: 15px;
+        }
+
+        input {
+            width: 200px;
+            height: 26px;
+            font-size: 16px;
+            padding-left:4px;
+        }
+
+        .btnSize {
+            width: 60px;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        #btns {
+            margin-top: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            column-gap: 12px;
+        }
+
+        .container table tr td {
+            padding: 5px;
+        }
+        .find{
+            margin-left:2px;
+            margin-top:5px;
+            width:65px;
+            height:20px;
+            font-size:11px;
+            padding-right:4px;
+        }
+
+    </style>
+    <script>
+        function GetCustomers() {
+
+            $.ajax({
+                url: '/api/customer',
+                type: 'get',
+                datatype: 'json',
+                error: DisplayError,
+                success: BuildTable
+            });
+
+        }
+
+        function BuildTable(Customers) {
+            $('#tblCust tbody').empty();
+            $('#CustId').focus();
+            $.each(Customers, function (Index, Customer) {
+                var Status = Customer.status ? 'Active' : 'In-Active';
+                $('#tblCust').append(
+                    '<tr><td>' + Customer.custId + '</td>' +
+                    '<td>' + Customer.name + '</td>' +
+                    '<td>' + Customer.balance + '</td>' +
+                    '<td>' + Customer.city + '</td>' +
+                    '<td>' + Status + '</td></tr>'
+                );
+            });
+        }
+
+        function DisplayError() {
+            window.alert("Server error, try again.");
+            $('#CustId').focus();
+        }
+
+        function GetCustomer() {
+            $.ajax({
+                url: '/api/customer/' + $('#CustId').val(),
+                type: 'get',
+                datatype: 'json',
+                error: DisplayError,
+                success: function (Customer) {
+                    if (Customer.custId == null || Customer == null) {
+                        $('#form1').trigger('reset');
+                        window.alert("No customer found with your input.");
+                         $('#CustId').focus();
+                        
+                    } 
+                    else {
+                        $('#Name').val(Customer.name);
+                        $('#Balance').val(Customer.balance);
+                        $('#City').val(Customer.city);
+                    }
+                }
+            });
+        }
+
+        function AddCustomer() {
+            $.ajax({
+                url: '/api/customer',
+                type: 'post',
+                datatype: 'json',
+                error: DisplayError,
+                data: $('#form1').serialize(),
+                success: ClearAndLoad
+            });
+        }
+
+        function UpdateCustomer() {
+            $.ajax({
+                url: '/api/customer',
+                type: 'put',
+                datatype: 'json',
+                data: $('#form1').serialize(),
+                error: DisplayError,
+                success: ClearAndLoad
+            });
+        }
+
+        function DeleteCustomer() {
+            $.ajax({
+                url: '/api/customer/' + $('#CustId').val(),
+                type: 'delete',
+                datatype: 'json',
+                error: DisplayError,
+                success: ClearAndLoad
+            });
+        }
+
+        function ClearAndLoad() {
+            $('#form1').trigger('reset');
+            GetCustomers();
+            $('#CustId').focus();
+        }
+    </script>
+</head>
+<body onload="GetCustomers()">
+
+ <div class="container" >
+
+
+                <table border="1" id="tblCust" width="100%">
+                    <thead>
+                        <tr>
+                    <th>Customer Id</th>
+                            <th>Name</th>
+                            <th>Balance</th>
+                            <th>City</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+        <form id="form1" style="border:1px solid black">
+                    <table style="margin:10px">
+                        <tr>
+                    <td>CustId:</td>
+                    <td>
+                        <input type="text" id="CustId" name="custId" />
+                        <input class="find" value="Find by Id" type="button" onclick="GetCustomer()" />
+                    </td>
+                        </tr>
+                        <tr>
+                            <td>Name:</td>
+                            <td><input type="text" id="Name" name="name" /></td>
+                        </tr>
+                        <tr>
+                            <td>Balance:</td>
+                            <td><input type="text" id="Balance" name="balance" /></td>
+                        </tr>
+                        <tr>
+                            <td>City:</td>
+                            <td><input type="text" id="City" name="city" /></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div id="btns">
+
+                               
+                                <input class="btnSize" type="button" value="Insert" onclick="AddCustomer()" />
+                                <input class="btnSize" type="button" value="Update" onclick="UpdateCustomer()" />
+                                <input class="btnSize" type="button" value="Delete" onclick="DeleteCustomer()" />
+                                <input class="btnSize" type="reset" value="Reset" />
+                        </div>
+                    </td>
+                        </tr>
+                    </table>
+                </form>
+    </div>
+</body>
+</html>

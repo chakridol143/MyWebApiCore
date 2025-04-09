@@ -1,0 +1,11 @@
+﻿services:
+  - type: web
+    name: my-web-api
+    runtime: docker
+    region: oregon  # You can also use 'frankfurt', 'singapore', etc.
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Development
